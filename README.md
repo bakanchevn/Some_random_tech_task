@@ -17,4 +17,6 @@ Instead of ```is_active = 1``` because in csv generation ```is_active``` is ```T
 
 Also i assume that ```transaction_amount``` is ```Decimal``` in the ```transactions``` table  instead of ```Integer```
 
-
+- [Task 1](Task1.md)
+- [Task 2](Task2.md)
+- [Task 3](Task3.md)

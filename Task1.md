@@ -5,8 +5,8 @@ I assume for this task that we have only one machine and no multithreading.
 
 The solution of this task depends on the assumption whether the users.csv fits into memory or not.
 
-If it does, then we can apply a solution in ```Task1_users_memory_fit.py```
-If it does not, then we can apply a solution in ```Task1_users_memory_not_fit.py```
+If it does, then we can apply a solution in [Task1_tx_memory_fit](Task1_tx_memory_fit.py)
+If it does not, then we can apply a solution in [Task1_tx_memory_not_fit](task1_tx_memory_not_fit.py)
 
 
 # Solution
