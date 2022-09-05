@@ -23,7 +23,7 @@ SELECT transaction_id,
 ```
 
 # Internals 
-Let's assume we are running the query on PostgreSQL database.
+Let's assume we are running the query on PostgreSQL database. Also i will not dive deep about I/O, memory cache and other details.
 
 After sending this query there are such steps:
 1. Client is setting up a connection with server 
