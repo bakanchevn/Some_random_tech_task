@@ -16,7 +16,7 @@ To run a calculation you can just run make in the terminal
 make
 ```
 
-After csv generation for an SQL query we have this result:
+After csv generation for an SQL query and pushing data to Postgres we have this result:
 
 ![img.png](source/sql_query_results.png)
 
