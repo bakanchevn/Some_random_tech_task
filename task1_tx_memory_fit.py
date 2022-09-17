@@ -1,6 +1,7 @@
-from csv import reader
+import csv 
 from decimal import Decimal
-from typing import List
+import heapq as hq
+from typing import List, Set
 
 # Query to recreate:
 # SELECT
@@ -15,49 +16,43 @@ from typing import List
 # ORDER BY sum_amount DESC;
 
 
-def get_active_users(file_dir: str, file_name: str) -> List[str]:
-    active_users= []
+def get_active_users(file_path: str) -> Set[str]:
+    active_users = set([])
     # Open the file in read mode
-    with open(file_dir + file_name, 'r') as read_obj:
-    # pass the file object to reader() to get the reader object
-        csv_reader = reader(read_obj)
-    # Iterate over each row in the csv using reader object and get the row if the user is active
+    with open(file_path, 'r') as csvfile:
+        # pass the file object to reader() to get the reader object
+        csv_reader = csv.DictReader(csvfile, fieldnames=['user_id', 'is_active'])
+        # Iterate over each row in the csv using reader object and get the row if the user is active
         for row in csv_reader:
-            if row[1] == 'True':
-                active_users.append(row[0])
+            user_id = row.get('user_id')
+            if row.get('is_active') == 'True' and user_id:
+                active_users.add(user_id)
     return active_users
 
 
-def get_transactions_data(active_users_list: List[str], file_dir: str, file_name: str) -> List[List[str]]:
+def get_transactions_data(active_users: Set[str], file_path: str) -> List[List[str]]:
     transaction_categories = {}
-    with open(file_dir + file_name, 'r') as read_obj:
-        csv_reader = reader(read_obj)
+    with open(file_path, 'r') as csvfile:
+        csv_reader = csv.DictReader(csvfile, fieldnames=['transaction_id','date','user_id','is_blocked','transaction_amount','transaction_category_id'])
         for row in csv_reader:
             # transactions_id - 0, date - 1, user_id - 2, is_blocked - 3, amount - 4, category - 5
-            if row[3] != 'True':
-                # getting rows only for active users
-                if row[2] in active_users_list:
-                    # if category is already in the dictionary, add the amount to the existing value
-                    if row[5] in transaction_categories:
-                        transaction_categories[row[5]]['sum_amount'] += Decimal(row[4])
-                        # if user is not in the list of users for the category, add it
-                        if row[2] not in transaction_categories[row[5]]['users']:
-                            transaction_categories[row[5]]['users'][row[2]] = 1
-                    else:
-                        transaction_categories[row[5]] = {'sum_amount': Decimal(row[4]), 'users': {row[2]: 1}}
-    # getting the number of users for each category
-    transaction_categories_agg = {k:{'sum_amount': v['sum_amount'], 'users_cnt': len(v['users'])}  for k, v in transaction_categories.items()}
-    # sorting the dictionary by the sum_amount
-    transaction_categories_sorted = sorted(transaction_categories_agg.items(), key=lambda x: x[1]['sum_amount'], reverse=True)
-    return transaction_categories_sorted
+            if row.get('is_blocked') == 'False' and row.get('user_id') in active_users:
+                category = row["transaction_category_id"]
+                inner_dict = transaction_categories.setdefault(category, {'sum_amount': 0, 'users': set([])})
+                inner_dict['sum_amount'] += Decimal(row['transaction_amount'])
+                inner_dict['users'].add(row['user_id'])
+
+    for v in transaction_categories.values():
+        v['users'] = len(v['users'])
+
+    
+    return sorted(transaction_categories.items(), key=lambda x: x[1]['sum_amount'], reverse=True)
 
 
 
 def get_category_info():
-    active_users = get_active_users('source/', 'users.csv')
-    transaction_categories = get_transactions_data(active_users, 'source/', 'transactions.csv')
-    for cat in transaction_categories:
-        print(cat[0], cat[1]['sum_amount'], cat[1]['users_cnt'])
+    for cat in get_transactions_data(get_active_users('./users.csv'), './transactions.csv'):
+        print(cat[0], cat[1]['sum_amount'], cat[1]['users'])
 
 
 
